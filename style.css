@@ -1068,3 +1068,366 @@ body {
     font-size: 0.85rem;
     color: rgba(255, 255, 255, 0.5);
 }
+
+/* ==========================================
+   MODE SELECTION & ONLINE LOBBY
+   ========================================== */
+
+.mode-selection {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+.btn-mode {
+    padding: 30px 35px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    color: #fff;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.3s;
+    min-width: 180px;
+}
+
+.btn-mode:hover {
+    background: rgba(168, 85, 247, 0.15);
+    border-color: #a855f7;
+    transform: translateY(-4px);
+}
+
+.btn-mode.online {
+    border-color: rgba(59, 130, 246, 0.4);
+}
+
+.btn-mode.online:hover {
+    background: rgba(59, 130, 246, 0.15);
+    border-color: #3b82f6;
+}
+
+.mode-icon {
+    display: block;
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+}
+
+.mode-titre {
+    display: block;
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.mode-desc {
+    display: block;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+/* Online Config */
+.online-name-input {
+    margin-bottom: 25px;
+}
+
+.online-name-input input {
+    width: 100%;
+    padding: 14px 18px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    color: #fff;
+    font-size: 1rem;
+    margin-top: 10px;
+}
+
+.online-name-input input:focus {
+    outline: none;
+    border-color: #3b82f6;
+}
+
+.online-options {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.separator {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.9rem;
+}
+
+.join-room-form {
+    display: flex;
+    gap: 10px;
+}
+
+.join-room-form input {
+    padding: 14px 18px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    color: #fff;
+    font-size: 1.2rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    width: 140px;
+    text-align: center;
+}
+
+.join-room-form input:focus {
+    outline: none;
+    border-color: #3b82f6;
+}
+
+.join-room-form input::placeholder {
+    font-size: 0.8rem;
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+.btn-small {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+}
+
+/* LOBBY */
+#ecran-lobby {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.lobby-container {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 24px;
+    padding: 40px;
+    max-width: 600px;
+    width: 100%;
+}
+
+.lobby-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.lobby-header h2 {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.room-code-display {
+    display: inline-flex;
+    align-items: center;
+    gap: 15px;
+    background: rgba(0, 0, 0, 0.4);
+    padding: 15px 25px;
+    border-radius: 14px;
+    border: 2px solid rgba(59, 130, 246, 0.4);
+}
+
+.code-label {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.code-value {
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: 5px;
+    color: #3b82f6;
+}
+
+.btn-copy {
+    background: transparent;
+    border: none;
+    font-size: 1.3rem;
+    cursor: pointer;
+    padding: 5px;
+    transition: transform 0.2s;
+}
+
+.btn-copy:hover {
+    transform: scale(1.2);
+}
+
+.lobby-players {
+    margin-bottom: 25px;
+}
+
+.lobby-players h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.lobby-players h3 span {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.players-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.lobby-player {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: all 0.3s;
+}
+
+.lobby-player.you {
+    background: rgba(168, 85, 247, 0.1);
+    border-color: rgba(168, 85, 247, 0.3);
+}
+
+.lobby-player.disconnected {
+    opacity: 0.4;
+}
+
+.player-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #fff;
+    border: 3px solid rgba(255, 255, 255, 0.8);
+}
+
+.player-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.player-name {
+    font-weight: 600;
+}
+
+.host-badge {
+    font-size: 0.75rem;
+    color: #fbbf24;
+}
+
+.player-status {
+    font-size: 0.9rem;
+}
+
+.lobby-chat {
+    margin-bottom: 25px;
+}
+
+.status-message {
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.95rem;
+}
+
+.lobby-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+}
+
+.btn-large {
+    padding: 18px 50px;
+    font-size: 1.2rem;
+}
+
+/* Online Indicator */
+.online-indicator {
+    font-size: 0.8rem;
+    padding: 5px 12px;
+    background: rgba(59, 130, 246, 0.2);
+    border: 1px solid rgba(59, 130, 246, 0.5);
+    border-radius: 20px;
+    margin-left: 12px;
+    color: #60a5fa;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+}
+
+/* Waiting Progress */
+.prep-progress {
+    margin-top: 20px;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 10px;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 5px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #a855f7, #6366f1);
+    transition: width 0.5s ease;
+    border-radius: 5px;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .mode-selection {
+        flex-direction: column;
+    }
+
+    .btn-mode {
+        min-width: auto;
+    }
+
+    .roles-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .room-code-display {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .code-value {
+        font-size: 1.5rem;
+    }
+
+    .join-room-form {
+        flex-direction: column;
+    }
+
+    .join-room-form input {
+        width: 100%;
+    }
+}

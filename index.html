@@ -6,27 +6,103 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Insertion Pro - Le Jeu</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body>
 
-    <!-- ÉCRAN ACCUEIL -->
+    <!-- ÉCRAN ACCUEIL - CHOIX MODE -->
     <div id="ecran-accueil" class="ecran">
         <div class="accueil-container">
             <h1>🎓 Insertion Pro</h1>
             <p class="sous-titre">Jeu de société sur l'insertion professionnelle</p>
 
-            <div class="config-section">
+            <div class="mode-selection">
+                <button id="btn-local" class="btn-mode">
+                    <span class="mode-icon">🎮</span>
+                    <span class="mode-titre">Partie Locale</span>
+                    <span class="mode-desc">Jouez sur le même écran</span>
+                </button>
+                <button id="btn-online" class="btn-mode online">
+                    <span class="mode-icon">🌐</span>
+                    <span class="mode-titre">Partie en Ligne</span>
+                    <span class="mode-desc">Jusqu'à 8 joueurs</span>
+                </button>
+            </div>
+
+            <!-- Mode Local -->
+            <div id="config-local" class="config-section hidden">
                 <label>Nombre de joueurs :</label>
                 <div class="joueurs-selector">
                     <button class="btn-nb active" data-nb="2">2</button>
                     <button class="btn-nb" data-nb="3">3</button>
                     <button class="btn-nb" data-nb="4">4</button>
                 </div>
+                <div id="liste-joueurs" class="liste-joueurs"></div>
+                <button id="btn-commencer" class="btn-principal">Commencer</button>
             </div>
 
-            <div id="liste-joueurs" class="liste-joueurs"></div>
-            <button id="btn-commencer" class="btn-principal">Commencer</button>
+            <!-- Mode Online -->
+            <div id="config-online" class="config-section hidden">
+                <div class="online-name-input">
+                    <label>Votre pseudo :</label>
+                    <input type="text" id="player-name" placeholder="Entrez votre pseudo" maxlength="20">
+                </div>
+                <div class="online-player-count">
+                    <label>Nombre de joueurs :</label>
+                    <div class="joueurs-selector online-joueurs">
+                        <button class="btn-nb" data-nb="1">1</button>
+                        <button class="btn-nb" data-nb="2">2</button>
+                        <button class="btn-nb" data-nb="3">3</button>
+                        <button class="btn-nb" data-nb="4">4</button>
+                        <button class="btn-nb" data-nb="5">5</button>
+                        <button class="btn-nb" data-nb="6">6</button>
+                        <button class="btn-nb" data-nb="7">7</button>
+                        <button class="btn-nb active" data-nb="8">8</button>
+                    </div>
+                </div>
+                <div class="online-options">
+                    <button id="btn-create-room" class="btn-principal">
+                        <span>➕</span> Créer une salle
+                    </button>
+                    <div class="separator">ou</div>
+                    <div class="join-room-form">
+                        <input type="text" id="room-code" placeholder="CODE SALLE" maxlength="6">
+                        <button id="btn-join-room" class="btn-principal">Rejoindre</button>
+                    </div>
+                </div>
+                <button id="btn-back-mode" class="btn-secondaire btn-small">← Retour</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ÉCRAN LOBBY EN LIGNE -->
+    <div id="ecran-lobby" class="ecran hidden">
+        <div class="lobby-container">
+            <div class="lobby-header">
+                <h2>🌐 Salle en Ligne</h2>
+                <div class="room-code-display">
+                    <span class="code-label">Code :</span>
+                    <span id="display-room-code" class="code-value">ABC123</span>
+                    <button id="btn-copy-code" class="btn-copy" title="Copier">📋</button>
+                </div>
+            </div>
+
+            <div class="lobby-players">
+                <h3>Joueurs connectés <span id="player-count">(1/8)</span></h3>
+                <div id="lobby-players-list" class="players-grid"></div>
+            </div>
+
+            <div class="lobby-chat">
+                <div id="lobby-status" class="status-message">En attente de joueurs...</div>
+            </div>
+
+            <div class="lobby-actions">
+                <button id="btn-start-online" class="btn-principal btn-large hidden">
+                    🚀 Lancer la partie
+                </button>
+                <button id="btn-leave-room" class="btn-secondaire">Quitter la salle</button>
+            </div>
         </div>
     </div>
 
@@ -78,6 +154,13 @@
                     </button>
                 </div>
             </div>
+
+            <!-- ATTENTE AUTRES JOUEURS (ONLINE) -->
+            <div id="etape-attente" class="etape-box hidden">
+                <h3>⏳ En attente</h3>
+                <p>Les autres joueurs font leurs choix...</p>
+                <div id="prep-progress" class="prep-progress"></div>
+            </div>
         </div>
     </div>
 
@@ -87,6 +170,7 @@
         <div id="header-jeu">
             <div class="header-left">
                 <span class="header-titre">🎓 Insertion Pro</span>
+                <span id="online-indicator" class="online-indicator hidden">🌐 En ligne</span>
             </div>
             <div class="header-center">
                 <!-- OBJECTIF DIPLÔME MIS EN AVANT -->
@@ -187,6 +271,7 @@
         </div>
     </div>
 
+    <script src="supabase-config.js"></script>
     <script src="game.js"></script>
 </body>
 

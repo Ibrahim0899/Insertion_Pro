@@ -1,9 +1,9 @@
 // ==========================================
-// INSERTION PRO - VERSION ÉQUILIBRÉE
-// Ajustements gameplay par game designer senior
+// INSERTION PRO - VERSION MULTIJOUEUR
+// Jusqu'à 8 joueurs en ligne simultanés
 // ==========================================
 
-const COULEURS = ['#ef4444', '#3b82f6', '#22c55e', '#f59e0b'];
+const COULEURS = ['#ef4444', '#3b82f6', '#22c55e', '#f59e0b', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316'];
 
 // DIPLÔMES : Points requis
 const DIPLOMES = {
@@ -45,7 +45,7 @@ const QUESTIONS_POOL = [
     { id: 25, q: "250 - 83 = ?", r: "167" }
 ];
 
-// CARTES ÉTUDES (équilibrées +2 à +6 stab, max +1 diplôme)
+// CARTES ÉTUDES
 const CARTES_ETUDES = [
     { titre: "Révisions", desc: "Travail acharné.", ptsDiplome: 1, stab: 0 },
     { titre: "Stage court", desc: "Expérience enrichissante.", ptsDiplome: 1, stab: 2 },
@@ -54,7 +54,7 @@ const CARTES_ETUDES = [
     { titre: "Mentorat", desc: "Un expert vous guide.", ptsDiplome: 0, stab: 5 }
 ];
 
-// CARTES TRAVAIL (équilibrées)
+// CARTES TRAVAIL
 const CARTES_TRAVAIL_SALARIE = [
     { titre: "Salaire", desc: "Paie mensuelle.", stab: 5 },
     { titre: "Prime modeste", desc: "Petit bonus.", stab: 4 },
@@ -71,7 +71,7 @@ const CARTES_TRAVAIL_ENTREPRENEUR = [
     { titre: "Concurrence", desc: "Marché difficile.", stab: -3 }
 ];
 
-// CARTES RESSOURCES (rééquilibrées - moins de +diplôme)
+// CARTES RESSOURCES
 const CARTES_RESSOURCES = [
     { type: 'stabilite', nom: 'Économies', icon: '💰', effet: '+5 stabilité', action: (j) => { j.stabilite += 5; } },
     { type: 'stabilite', nom: 'Soutien', icon: '🤝', effet: '+4 stabilité', action: (j) => { j.stabilite += 4; } },
@@ -80,7 +80,7 @@ const CARTES_RESSOURCES = [
     { type: 'chance', nom: 'Coup de pouce', icon: '🍀', effet: '+2 stabilité', action: (j) => { j.stabilite += 2; } }
 ];
 
-// CARTES CHOIX (conséquences CACHÉES)
+// CARTES CHOIX
 const CARTES_CHOIX = [
     { titre: "Opportunité risquée", desc: "On vous propose un projet ambitieux mais incertain.", oui: { stab: 6, label: 'Accepter' }, non: { stab: -2, label: 'Refuser' } },
     { titre: "Heures sup ?", desc: "Travail supplémentaire demandé.", oui: { stab: 4, label: 'Accepter' }, non: { stab: -3, label: 'Refuser' } },
@@ -90,7 +90,7 @@ const CARTES_CHOIX = [
     { titre: "Déménagement", desc: "Emploi mieux payé, mais loin.", oui: { stab: 4, label: 'Partir' }, non: { stab: -2, label: 'Rester' } }
 ];
 
-// CARTES SPÉCIALES (rares, effets modérés)
+// CARTES SPÉCIALES
 const CARTES_SPECIAL_SALARIE = [
     { titre: "Promotion", desc: "Montée en grade !", stab: 6 },
     { titre: "Burn-out léger", desc: "Fatigue accumulée.", stab: -5 }
@@ -101,7 +101,7 @@ const CARTES_SPECIAL_ENTREPRENEUR = [
     { titre: "Projet échoué", desc: "Un investissement perdu.", stab: -6 }
 ];
 
-// CARTES ÉCHEC (modérées)
+// CARTES ÉCHEC
 const CARTES_ECHEC = [
     { titre: "Procrastination", desc: "Temps perdu.", stab: -2 },
     { titre: "Imprévu", desc: "Journée perturbée.", stab: -3 },
@@ -110,14 +110,15 @@ const CARTES_ECHEC = [
 
 // ÉTAT DU JEU
 let jeu = {
+    mode: 'local', // 'local' ou 'online'
     joueurs: [],
     joueurActif: 0,
     tour: 1,
-    maxTours: 30, // DÉMO 30 TOURS
+    maxTours: 30,
     phase: 'accueil',
     deBloque: true,
-    questionsUtilisees: [], // IDs des questions déjà posées
-    effetsDifferes: [] // Effets pour le tour suivant
+    questionsUtilisees: [],
+    effetsDifferes: []
 };
 
 // ==========================================
@@ -125,6 +126,12 @@ let jeu = {
 // ==========================================
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Mode selection
+    document.getElementById('btn-local').addEventListener('click', () => showModeConfig('local'));
+    document.getElementById('btn-online').addEventListener('click', () => showModeConfig('online'));
+    document.getElementById('btn-back-mode')?.addEventListener('click', hideModeConfig);
+
+    // Local mode
     document.querySelectorAll('.btn-nb').forEach(btn => {
         btn.addEventListener('click', () => {
             document.querySelectorAll('.btn-nb').forEach(b => b.classList.remove('active'));
@@ -136,8 +143,46 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btn-commencer').addEventListener('click', demarrerPreparation);
     document.getElementById('btn-rejouer').addEventListener('click', () => location.reload());
 
+    // Online mode
+    document.getElementById('btn-create-room')?.addEventListener('click', createOnlineRoom);
+    document.getElementById('btn-join-room')?.addEventListener('click', joinOnlineRoom);
+    document.getElementById('btn-copy-code')?.addEventListener('click', copyRoomCode);
+    document.getElementById('btn-leave-room')?.addEventListener('click', leaveRoom);
+    document.getElementById('btn-start-online')?.addEventListener('click', startOnlineGame);
+
+    // Room code input - uppercase
+    document.getElementById('room-code')?.addEventListener('input', (e) => {
+        e.target.value = e.target.value.toUpperCase();
+    });
+
+    // Online player count selector
+    document.querySelectorAll('.online-joueurs .btn-nb').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.online-joueurs .btn-nb').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        });
+    });
+
     genererJoueurs(2);
 });
+
+function showModeConfig(mode) {
+    document.getElementById('config-local').classList.add('hidden');
+    document.getElementById('config-online').classList.add('hidden');
+    document.querySelector('.mode-selection').classList.add('hidden');
+
+    if (mode === 'local') {
+        document.getElementById('config-local').classList.remove('hidden');
+    } else {
+        document.getElementById('config-online').classList.remove('hidden');
+    }
+}
+
+function hideModeConfig() {
+    document.getElementById('config-local').classList.add('hidden');
+    document.getElementById('config-online').classList.add('hidden');
+    document.querySelector('.mode-selection').classList.remove('hidden');
+}
 
 function genererJoueurs(nb) {
     const container = document.getElementById('liste-joueurs');
@@ -152,14 +197,228 @@ function genererJoueurs(nb) {
 }
 
 // ==========================================
-// PRÉPARATION : DIPLÔME ALÉATOIRE + ACCEPTER/REFUSER
+// MODE EN LIGNE - GESTION DES SALLES
+// ==========================================
+
+async function createOnlineRoom() {
+    const playerName = document.getElementById('player-name').value.trim() || 'Joueur';
+
+    // Get selected max players from online selector
+    const selectedBtn = document.querySelector('.online-joueurs .btn-nb.active');
+    const maxPlayers = selectedBtn ? parseInt(selectedBtn.dataset.nb) : 8;
+
+    const btn = document.getElementById('btn-create-room');
+    btn.disabled = true;
+    btn.textContent = 'Création...';
+
+    const result = await RoomManager.createRoom(playerName, maxPlayers);
+
+    if (result.success) {
+        jeu.mode = 'online';
+        jeu.maxPlayersOnline = maxPlayers;
+        showLobby(result.room.code);
+    } else {
+        alert('Erreur: ' + result.error);
+        btn.disabled = false;
+        btn.innerHTML = '<span>➕</span> Créer une salle';
+    }
+}
+
+async function joinOnlineRoom() {
+    const code = document.getElementById('room-code').value.trim().toUpperCase();
+    const playerName = document.getElementById('player-name').value.trim() || 'Joueur';
+
+    if (code.length !== 6) {
+        alert('Le code doit contenir 6 caractères');
+        return;
+    }
+
+    const btn = document.getElementById('btn-join-room');
+    btn.disabled = true;
+    btn.textContent = 'Connexion...';
+
+    const result = await RoomManager.joinRoom(code, playerName);
+
+    if (result.success) {
+        jeu.mode = 'online';
+        showLobby(code);
+        if (result.reconnected) {
+            document.getElementById('lobby-status').textContent = '🔄 Reconnecté !';
+        }
+    } else {
+        alert('Erreur: ' + result.error);
+        btn.disabled = false;
+        btn.textContent = 'Rejoindre';
+    }
+}
+
+function showLobby(code) {
+    document.getElementById('ecran-accueil').classList.add('hidden');
+    document.getElementById('ecran-lobby').classList.remove('hidden');
+    document.getElementById('display-room-code').textContent = code;
+
+    // Show start button for host
+    if (RoomManager.isHost()) {
+        document.getElementById('btn-start-online').classList.remove('hidden');
+    }
+
+    // Load players
+    refreshLobbyPlayers();
+}
+
+async function refreshLobbyPlayers() {
+    const players = await RoomManager.getPlayers();
+    const container = document.getElementById('lobby-players-list');
+    const countEl = document.getElementById('player-count');
+    const maxPlayers = RoomManager.currentRoom?.max_players || 8;
+
+    countEl.textContent = `(${players.length}/${maxPlayers})`;
+
+    container.innerHTML = players.map((p, i) => `
+        <div class="lobby-player ${p.is_connected ? '' : 'disconnected'} ${p.player_id === RoomManager.currentPlayer?.player_id ? 'you' : ''}">
+            <div class="player-avatar" style="background: ${p.color}">${p.player_name.charAt(0).toUpperCase()}</div>
+            <div class="player-info">
+                <span class="player-name">${p.player_name}</span>
+                ${RoomManager.currentRoom?.host_id === p.player_id ? '<span class="host-badge">👑 Hôte</span>' : ''}
+            </div>
+            <div class="player-status">${p.is_connected ? '🟢' : '🔴'}</div>
+        </div>
+    `).join('');
+
+    // Auto-start when target player count reached
+    const connectedPlayers = players.filter(p => p.is_connected).length;
+    if (connectedPlayers >= maxPlayers && RoomManager.isHost()) {
+        document.getElementById('lobby-status').textContent = '🚀 Nombre de joueurs atteint ! Lancement...';
+        setTimeout(() => startOnlineGame(), 2000);
+        return;
+    }
+
+    // Update status text
+    if (connectedPlayers < maxPlayers) {
+        document.getElementById('lobby-status').textContent = `En attente de joueurs... (${maxPlayers - connectedPlayers} restant(s))`;
+    }
+
+    // Show start button for host (can start early if min 1 player for solo or 2+ for multi)
+    if (RoomManager.isHost()) {
+        const minPlayers = maxPlayers === 1 ? 1 : 1;
+        document.getElementById('btn-start-online').disabled = connectedPlayers < minPlayers;
+    }
+}
+
+function copyRoomCode() {
+    const code = document.getElementById('display-room-code').textContent;
+    navigator.clipboard.writeText(code).then(() => {
+        const btn = document.getElementById('btn-copy-code');
+        btn.textContent = '✅';
+        setTimeout(() => btn.textContent = '📋', 2000);
+    });
+}
+
+async function leaveRoom() {
+    await RoomManager.leaveRoom();
+    location.reload();
+}
+
+async function startOnlineGame() {
+    if (!RoomManager.isHost()) return;
+
+    const players = await RoomManager.getPlayers();
+    const maxPlayers = RoomManager.currentRoom?.max_players || 8;
+    const minPlayers = maxPlayers === 1 ? 1 : 1; // Allow solo or multiplayer
+
+    if (players.length < minPlayers) {
+        alert(`Il faut au moins ${minPlayers} joueur(s) pour commencer`);
+        return;
+    }
+
+    // Initialize game state
+    const diplomesKeys = Object.keys(DIPLOMES);
+    shuffleArray(QUESTIONS_POOL);
+
+    const gameState = {
+        phase: 'preparation',
+        tour: 1,
+        joueurActif: 0,
+        questionsUtilisees: [],
+        effetsDifferes: [],
+        prepIndex: 0
+    };
+
+    // Assign diplomas to all players
+    for (const player of players) {
+        const diplomeAleatoire = diplomesKeys[Math.floor(Math.random() * diplomesKeys.length)];
+        await supabase.from('room_players').update({
+            diplome_objectif: diplomeAleatoire,
+            stabilite: 50,
+            pts_diplome: 0
+        }).eq('id', player.id);
+    }
+
+    await RoomManager.updateRoom({
+        status: 'preparation',
+        game_state: gameState,
+        questions_utilisees: []
+    });
+}
+
+// Realtime callbacks
+function onRoomUpdate(room) {
+    if (room.status === 'preparation' && jeu.phase !== 'preparation') {
+        demarrerPreparationOnline();
+    } else if (room.status === 'playing' && jeu.phase !== 'jeu') {
+        lancerJeuOnline();
+    } else if (room.status === 'playing') {
+        // Sync game state
+        const state = room.game_state;
+        jeu.tour = state.tour || jeu.tour;
+        jeu.joueurActif = state.joueurActif ?? jeu.joueurActif;
+        jeu.deBloque = !isMyTurn();
+        majInterface();
+    }
+}
+
+function onPlayersUpdate(players) {
+    if (jeu.phase === 'accueil' || jeu.phase === 'lobby') {
+        refreshLobbyPlayers();
+    } else {
+        // Sync player states
+        jeu.joueurs = players.map(p => ({
+            id: p.player_index,
+            oderId: p.id,
+            oderId: p.id,
+            oderId: p.id,
+            playerId: p.player_id,
+            nom: p.player_name,
+            couleur: p.color,
+            stabilite: p.stabilite,
+            diplomeObjectif: p.diplome_objectif,
+            ptsDiplome: p.pts_diplome,
+            role: p.role,
+            ressources: p.ressources || [],
+            elimine: false,
+            diplomeValide: p.diplome_valide,
+            protectionActive: p.protection_active,
+            diplomeRefuse: p.diplome_refuse
+        }));
+        majInterface();
+    }
+}
+
+function isMyTurn() {
+    if (jeu.mode !== 'online') return true;
+    const myIndex = RoomManager.currentPlayer?.player_index;
+    return myIndex === jeu.joueurActif;
+}
+
+// ==========================================
+// PRÉPARATION
 // ==========================================
 
 function demarrerPreparation() {
+    jeu.mode = 'local';
     const nb = parseInt(document.querySelector('.btn-nb.active').dataset.nb);
     const diplomesKeys = Object.keys(DIPLOMES);
 
-    // Reset questions utilisées (nouvelle seed)
     jeu.questionsUtilisees = [];
     shuffleArray(QUESTIONS_POOL);
 
@@ -192,6 +451,125 @@ function demarrerPreparation() {
     afficherPreparation();
 }
 
+async function demarrerPreparationOnline() {
+    jeu.phase = 'preparation';
+
+    // Load players from database
+    const players = await RoomManager.getPlayers();
+    jeu.joueurs = players.map(p => ({
+        id: p.player_index,
+        oderId: p.id,
+        playerId: p.player_id,
+        nom: p.player_name,
+        couleur: p.color,
+        stabilite: p.stabilite,
+        diplomeObjectif: p.diplome_objectif,
+        ptsDiplome: p.pts_diplome || 0,
+        role: p.role,
+        ressources: p.ressources || [],
+        elimine: false,
+        diplomeValide: p.diplome_valide || false,
+        protectionActive: p.protection_active || false,
+        diplomeRefuse: p.diplome_refuse || false
+    }));
+
+    // Find my player index
+    const myPlayer = players.find(p => p.player_id === getPlayerId());
+    jeu.joueurActif = myPlayer ? myPlayer.player_index : 0;
+
+    document.getElementById('ecran-lobby').classList.add('hidden');
+    document.getElementById('ecran-preparation').classList.remove('hidden');
+
+    afficherPreparationOnline();
+}
+
+function afficherPreparationOnline() {
+    const myPlayer = jeu.joueurs.find(j => j.playerId === getPlayerId());
+    if (!myPlayer) return;
+
+    const diplome = DIPLOMES[myPlayer.diplomeObjectif];
+
+    document.querySelector('.prep-pion').style.background = myPlayer.couleur;
+    document.querySelector('.prep-nom').textContent = myPlayer.nom;
+
+    document.getElementById('etape-diplome-attribue').classList.remove('hidden');
+    document.getElementById('etape-role').classList.add('hidden');
+    document.getElementById('etape-attente').classList.add('hidden');
+
+    document.querySelector('.diplome-icon').textContent = diplome.icon;
+    document.querySelector('.diplome-nom').textContent = diplome.nom;
+    document.querySelector('.diplome-pts').textContent = `${diplome.pts} points requis`;
+
+    document.getElementById('btn-continuer-role').innerHTML = `
+        <button class="btn-principal" style="margin-right:10px" onclick="accepterDiplomeOnline()">Accepter le défi</button>
+        <button class="btn-secondaire" onclick="refuserDiplomeOnline()">Refuser (pas de malus)</button>
+    `;
+}
+
+async function accepterDiplomeOnline() {
+    // Simplified for online - skip questions, go to role
+    passerAuRoleOnline();
+}
+
+async function refuserDiplomeOnline() {
+    await RoomManager.updatePlayer({ diplome_refuse: true });
+    passerAuRoleOnline();
+}
+
+function passerAuRoleOnline() {
+    document.getElementById('etape-diplome-attribue').classList.add('hidden');
+    document.getElementById('etape-role').classList.remove('hidden');
+
+    document.querySelectorAll('.btn-role').forEach(btn => {
+        btn.onclick = () => choisirRoleOnline(btn.dataset.role);
+    });
+}
+
+async function choisirRoleOnline(role) {
+    const updates = { role: role };
+    if (role === 'salarie') {
+        updates.stabilite = 55; // 50 + 5 bonus
+    }
+    updates.is_ready = true;
+
+    await RoomManager.updatePlayer(updates);
+
+    // Show waiting screen
+    document.getElementById('etape-role').classList.add('hidden');
+    document.getElementById('etape-attente').classList.remove('hidden');
+
+    // Check if all players ready
+    checkAllPlayersReady();
+}
+
+async function checkAllPlayersReady() {
+    const players = await RoomManager.getPlayers();
+    const allReady = players.every(p => p.is_ready);
+
+    if (allReady && RoomManager.isHost()) {
+        // Start game
+        await RoomManager.updateRoom({
+            status: 'playing',
+            game_state: {
+                phase: 'jeu',
+                tour: 1,
+                joueurActif: 0,
+                questionsUtilisees: [],
+                effetsDifferes: []
+            }
+        });
+    }
+
+    // Update progress display
+    const readyCount = players.filter(p => p.is_ready).length;
+    document.getElementById('prep-progress').innerHTML = `
+        <div class="progress-bar">
+            <div class="progress-fill" style="width: ${(readyCount / players.length) * 100}%"></div>
+        </div>
+        <span>${readyCount}/${players.length} joueurs prêts</span>
+    `;
+}
+
 function afficherPreparation() {
     const j = jeu.joueurs[jeu.joueurActif];
     const diplome = DIPLOMES[j.diplomeObjectif];
@@ -206,7 +584,6 @@ function afficherPreparation() {
     document.querySelector('.diplome-nom').textContent = diplome.nom;
     document.querySelector('.diplome-pts').textContent = `${diplome.pts} points requis`;
 
-    // Bouton accepter/refuser diplôme
     document.getElementById('btn-continuer-role').innerHTML = `
         <button class="btn-principal" style="margin-right:10px" onclick="accepterDiplome()">Accepter le défi</button>
         <button class="btn-secondaire" onclick="refuserDiplome()">Refuser (pas de malus)</button>
@@ -215,7 +592,6 @@ function afficherPreparation() {
 
 function accepterDiplome() {
     const j = jeu.joueurs[jeu.joueurActif];
-    // 1 à 3 questions aléatoires
     const nbQuestions = 1 + Math.floor(Math.random() * 3);
     jeu.prepQuestions = nbQuestions;
     jeu.prepBonnesReponses = 0;
@@ -271,11 +647,10 @@ function finirPreparationDiplome() {
     const j = jeu.joueurs[jeu.joueurActif];
     const diplome = DIPLOMES[j.diplomeObjectif];
 
-    // Si échec aux questions : malus léger (-1 à -5)
     if (jeu.prepBonnesReponses < jeu.prepQuestions) {
         const malus = 1 + Math.floor(Math.random() * 5);
         j.stabilite -= malus;
-        j.diplomeRefuse = true; // Commence sans diplôme validé
+        j.diplomeRefuse = true;
 
         document.querySelector('.diplome-attribue').innerHTML = `
             <span class="diplome-icon">😓</span>
@@ -341,8 +716,44 @@ function lancerJeu() {
     majInterface();
 }
 
+async function lancerJeuOnline() {
+    jeu.phase = 'jeu';
+    jeu.tour = 1;
+    jeu.joueurActif = 0;
+    jeu.deBloque = !isMyTurn();
+
+    // Load players
+    const players = await RoomManager.getPlayers();
+    jeu.joueurs = players.map(p => ({
+        id: p.player_index,
+        oderId: p.id,
+        playerId: p.player_id,
+        nom: p.player_name,
+        couleur: p.color,
+        stabilite: p.stabilite,
+        diplomeObjectif: p.diplome_objectif,
+        ptsDiplome: p.pts_diplome || 0,
+        role: p.role,
+        ressources: p.ressources || [],
+        elimine: false,
+        diplomeValide: p.diplome_valide || false,
+        protectionActive: p.protection_active || false,
+        diplomeRefuse: p.diplome_refuse || false
+    }));
+
+    document.getElementById('ecran-preparation').classList.add('hidden');
+    document.getElementById('ecran-jeu').classList.remove('hidden');
+    document.getElementById('online-indicator').classList.remove('hidden');
+
+    document.getElementById('de-scene').addEventListener('click', lancerDe);
+
+    majInterface();
+}
+
 function majInterface() {
     const j = jeu.joueurs[jeu.joueurActif];
+    if (!j) return;
+
     const diplome = DIPLOMES[j.diplomeObjectif];
 
     document.getElementById('tour-num').textContent = jeu.tour;
@@ -357,7 +768,7 @@ function majInterface() {
     jeu.joueurs.forEach((p, i) => {
         const roleIcon = p.role === 'salarie' ? '💼' : '🚀';
         const stabAffichee = Math.max(-50, p.stabilite);
-        const stabPct = Math.max(0, Math.min(100, (p.stabilite + 50) / 1.5)); // -50 à 100 mappé sur 0-100%
+        const stabPct = Math.max(0, Math.min(100, (p.stabilite + 50) / 1.5));
         liste.innerHTML += `
             <div class="joueur-card ${i === jeu.joueurActif ? 'actif' : ''}">
                 <div class="joueur-card-header">
@@ -372,10 +783,16 @@ function majInterface() {
             </div>`;
     });
 
+    // Resources - show for current player in local, or for my player in online
+    let myPlayer = j;
+    if (jeu.mode === 'online') {
+        myPlayer = jeu.joueurs.find(p => p.playerId === getPlayerId()) || j;
+    }
+
     const slots = document.getElementById('slots-ressources');
     slots.innerHTML = '';
     for (let i = 0; i < 4; i++) {
-        const res = j.ressources[i];
+        const res = myPlayer.ressources[i];
         if (res) {
             slots.innerHTML += `
                 <div class="slot-ressource plein" onclick="utiliserRessource(${i})">
@@ -392,8 +809,16 @@ function majInterface() {
     document.getElementById('ja-role').textContent = j.role === 'salarie' ? '💼 Salarié' : '🚀 Entrepreneur';
 
     const deCube = document.getElementById('de-3d');
-    deCube.classList.toggle('disabled', jeu.deBloque);
-    document.getElementById('de-instruction').textContent = jeu.deBloque ? 'Terminez l\'action' : 'Cliquez sur le dé';
+    const canPlay = jeu.mode === 'local' || isMyTurn();
+    deCube.classList.toggle('disabled', jeu.deBloque || !canPlay);
+
+    let instruction = 'Cliquez sur le dé';
+    if (jeu.deBloque) {
+        instruction = "Terminez l'action";
+    } else if (!canPlay) {
+        instruction = `C'est le tour de ${j.nom}`;
+    }
+    document.getElementById('de-instruction').textContent = instruction;
 }
 
 function getQuestionUnique() {
@@ -421,6 +846,7 @@ function utiliserRessource(index) {
         afficherResultat('RESSOURCE', `${res.icon} ${res.nom}`, 'Ressource utilisée !', res.effet, 'positif');
     }
 
+    syncPlayerStateOnline();
     majInterface();
 }
 
@@ -430,6 +856,7 @@ function utiliserRessource(index) {
 
 function lancerDe() {
     if (jeu.deBloque) return;
+    if (jeu.mode === 'online' && !isMyTurn()) return;
 
     jeu.deBloque = true;
     const deCube = document.getElementById('de-3d');
@@ -454,13 +881,10 @@ function traiterAction(resultat) {
     const j = jeu.joueurs[jeu.joueurActif];
     const action = ACTIONS_DE[resultat];
 
-    // Bonus passif salarié (+2/tour)
     if (j.role === 'salarie') j.stabilite += 2;
 
-    // Appliquer effets différés du tour précédent
     appliquerEffetsDifferes();
 
-    // Instabilité des diplômes bas
     const diplome = DIPLOMES[j.diplomeObjectif];
     if (diplome.instabilite > 0 && Math.random() < 0.15) {
         j.stabilite -= diplome.instabilite;
@@ -518,7 +942,7 @@ function appliquerPerte(perte) {
         perte = Math.ceil(perte / 2);
         j.protectionActive = false;
     }
-    j.stabilite += perte; // perte est négatif
+    j.stabilite += perte;
     return perte;
 }
 
@@ -533,7 +957,6 @@ function carteEtudes() {
     const diplome = DIPLOMES[j.diplomeObjectif];
     const carte = CARTES_ETUDES[Math.floor(Math.random() * CARTES_ETUDES.length)];
 
-    // Progression bloquée si stabilité trop basse
     if (carte.ptsDiplome > 0 && j.stabilite < 20) {
         j.stabilite += carte.stab || 0;
         afficherResultat('ÉTUDES', `📚 ${carte.titre}`, 'Stabilité trop basse pour progresser !', `${carte.stab >= 0 ? '+' : ''}${carte.stab || 0} stabilité`, 'neutre');
@@ -576,7 +999,6 @@ function validerEtudes() {
     const carte = jeu.currentCarte;
 
     if (bonnes.some(b => reponse.includes(b) || b.includes(reponse))) {
-        // Max +1 pt diplôme par tour
         j.ptsDiplome += 1;
         j.stabilite += carte.stab || 0;
         verifierDiplome();
@@ -620,7 +1042,6 @@ function carteChoix() {
     const carte = CARTES_CHOIX[Math.floor(Math.random() * CARTES_CHOIX.length)];
     jeu.currentChoix = carte;
 
-    // Conséquences CACHÉES
     afficherCarte('CHOIX', `❓ ${carte.titre}`, carte.desc,
         'Choisissez sans connaître les conséquences', 'neutre',
         `<button class="btn-oui" onclick="appliquerChoix('oui')">${carte.oui.label}</button>
@@ -633,7 +1054,6 @@ function appliquerChoix(choix) {
 
     let stab = effet.stab;
 
-    // Effet différé ?
     if (effet.differe) {
         jeu.effetsDifferes.push({ joueur: jeu.joueurActif, stab: stab });
         afficherResultat('CHOIX', effet.label, 'Effet appliqué au prochain tour', 'À suivre...', 'neutre');
@@ -685,7 +1105,6 @@ function verifierVictoire() {
     const j = jeu.joueurs[jeu.joueurActif];
     const diplome = DIPLOMES[j.diplomeObjectif];
 
-    // Victoire : 100 stabilité OU diplôme + stabilité min
     if (j.stabilite >= 100) {
         terminerPartie(j, 'Stabilité maximale atteinte !');
         return true;
@@ -699,13 +1118,15 @@ function verifierVictoire() {
     return false;
 }
 
-function finTour() {
+async function finTour() {
     if (verifierVictoire()) return;
 
-    // Prochain joueur
+    // Sync player state if online
+    await syncPlayerStateOnline();
+
+    // Next player
     jeu.joueurActif = (jeu.joueurActif + 1) % jeu.joueurs.length;
 
-    // Nouveau tour ?
     if (jeu.joueurActif === 0) {
         jeu.tour++;
         if (jeu.tour > jeu.maxTours) {
@@ -719,10 +1140,38 @@ function finTour() {
         }
     }
 
-    jeu.deBloque = false;
+    // Sync game state if online
+    if (jeu.mode === 'online') {
+        await RoomManager.updateRoom({
+            game_state: {
+                phase: 'jeu',
+                tour: jeu.tour,
+                joueurActif: jeu.joueurActif,
+                questionsUtilisees: jeu.questionsUtilisees,
+                effetsDifferes: jeu.effetsDifferes
+            }
+        });
+    }
+
+    jeu.deBloque = jeu.mode === 'online' ? !isMyTurn() : false;
     document.getElementById('carte-piochee').classList.add('hidden');
     document.getElementById('de-resultat').classList.add('hidden');
     majInterface();
+}
+
+async function syncPlayerStateOnline() {
+    if (jeu.mode !== 'online') return;
+
+    const j = jeu.joueurs[jeu.joueurActif];
+    if (!j || j.playerId !== getPlayerId()) return;
+
+    await RoomManager.updatePlayer({
+        stabilite: j.stabilite,
+        pts_diplome: j.ptsDiplome,
+        diplome_valide: j.diplomeValide,
+        protection_active: j.protectionActive,
+        ressources: j.ressources
+    });
 }
 
 function terminerPartie(gagnant, raison) {
@@ -739,7 +1188,7 @@ function terminerPartie(gagnant, raison) {
         return b.stabilite - a.stabilite;
     });
 
-    const medals = ['🥇', '🥈', '🥉', '4️⃣'];
+    const medals = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣'];
     document.getElementById('fin-classement').innerHTML = classement.map((p, i) => `
         <div class="classement-item">
             <span class="classement-pos">${medals[i] || (i + 1)}</span>
@@ -750,6 +1199,11 @@ function terminerPartie(gagnant, raison) {
             </div>
         </div>
     `).join('');
+
+    // Update room status if online
+    if (jeu.mode === 'online' && RoomManager.isHost()) {
+        RoomManager.updateRoom({ status: 'finished' });
+    }
 }
 
 function shuffleArray(array) {

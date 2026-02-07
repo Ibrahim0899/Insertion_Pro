@@ -335,24 +335,27 @@ async function startOnlineGame() {
     const diplomesKeys = Object.keys(DIPLOMES);
     shuffleArray(QUESTIONS_POOL);
 
+    // Prepare player states in game_state JSON instead of updating columns
+    const playerStates = {};
+    for (const player of players) {
+        const diplomeAleatoire = diplomesKeys[Math.floor(Math.random() * diplomesKeys.length)];
+        playerStates[player.player_id] = {
+            diplome_objectif: diplomeAleatoire,
+            stabilite: 50,
+            pts_diplome: 0,
+            role: null
+        };
+    }
+
     const gameState = {
         phase: 'preparation',
         tour: 1,
         joueurActif: 0,
         questionsUtilisees: [],
         effetsDifferes: [],
-        prepIndex: 0
+        prepIndex: 0,
+        playerStates: playerStates
     };
-
-    // Assign diplomas to all players
-    for (const player of players) {
-        const diplomeAleatoire = diplomesKeys[Math.floor(Math.random() * diplomesKeys.length)];
-        await supabaseClient.from('room_players').update({
-            diplome_objectif: diplomeAleatoire,
-            stabilite: 50,
-            pts_diplome: 0
-        }).eq('id', player.id);
-    }
 
     await RoomManager.updateRoom({
         status: 'preparation',

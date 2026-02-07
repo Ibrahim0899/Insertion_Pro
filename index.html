@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Insertion Pro - Le Jeu</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- ÉCRAN ACCUEIL -->
+    <div id="ecran-accueil" class="ecran">
+        <div class="accueil-container">
+            <h1>🎓 Insertion Pro</h1>
+            <p class="sous-titre">Jeu de société sur l'insertion professionnelle</p>
+
+            <div class="config-section">
+                <label>Nombre de joueurs :</label>
+                <div class="joueurs-selector">
+                    <button class="btn-nb active" data-nb="2">2</button>
+                    <button class="btn-nb" data-nb="3">3</button>
+                    <button class="btn-nb" data-nb="4">4</button>
+                </div>
+            </div>
+
+            <div id="liste-joueurs" class="liste-joueurs"></div>
+            <button id="btn-commencer" class="btn-principal">Commencer</button>
+        </div>
+    </div>
+
+    <!-- PHASE PRÉPARATION : CHOIX DU RÔLE UNIQUEMENT -->
+    <div id="ecran-preparation" class="ecran hidden">
+        <div class="preparation-header">
+            <h2>Préparation</h2>
+            <div class="prep-joueur-info">
+                <span class="prep-pion"></span>
+                <span class="prep-nom">Joueur</span>
+            </div>
+        </div>
+
+        <div class="preparation-content">
+            <!-- DIPLÔME ATTRIBUÉ (NON CHOISI) -->
+            <div id="etape-diplome-attribue" class="etape-box">
+                <h3>🎓 Votre diplôme objectif</h3>
+                <p class="attribue-info">Attribué aléatoirement par le jeu</p>
+                <div id="diplome-attribue-affichage" class="diplome-attribue">
+                    <span class="diplome-icon">🎓</span>
+                    <span class="diplome-nom">BAC</span>
+                    <span class="diplome-pts">4 points requis</span>
+                </div>
+                <div id="btn-continuer-role" class="btns-diplome"></div>
+            </div>
+
+            <!-- CHOIX DU RÔLE (SEUL CHOIX) -->
+            <div id="etape-role" class="etape-box hidden">
+                <h3>👤 Choisissez votre rôle</h3>
+                <p>Ce choix est <strong>définitif</strong> et influence toute la partie</p>
+                <div class="roles-grid">
+                    <button class="btn-role" data-role="salarie">
+                        <span class="role-icon">💼</span>
+                        <span class="role-titre">Salarié</span>
+                        <ul class="role-details">
+                            <li>✅ +2 stabilité par tour</li>
+                            <li>✅ Pertes réduites (-50%)</li>
+                            <li>⚠️ Progression diplôme lente</li>
+                        </ul>
+                    </button>
+                    <button class="btn-role" data-role="entrepreneur">
+                        <span class="role-icon">🚀</span>
+                        <span class="role-titre">Entrepreneur</span>
+                        <ul class="role-details">
+                            <li>✅ Gains doublés possibles</li>
+                            <li>✅ Cartes exclusives</li>
+                            <li>⚠️ Risques importants</li>
+                        </ul>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ÉCRAN JEU -->
+    <div id="ecran-jeu" class="ecran hidden">
+
+        <div id="header-jeu">
+            <div class="header-left">
+                <span class="header-titre">🎓 Insertion Pro</span>
+            </div>
+            <div class="header-center">
+                <!-- OBJECTIF DIPLÔME MIS EN AVANT -->
+                <div id="objectif-principal" class="objectif-principal">
+                    <span class="obj-label">OBJECTIF</span>
+                    <span id="obj-diplome-nom" class="obj-diplome-nom">BAC</span>
+                    <div class="obj-progress">
+                        <div id="obj-progress-fill" class="obj-progress-fill"></div>
+                    </div>
+                    <span id="obj-progress-text" class="obj-progress-text">0/4</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="info-tour">Tour <strong id="tour-num">1</strong>/<span id="tour-max">60</span></div>
+            </div>
+        </div>
+
+        <div id="layout-jeu">
+
+            <!-- ZONE CENTRALE -->
+            <div id="zone-centrale">
+
+                <!-- DÉ + TAS DE CARTES -->
+                <div class="zone-de-tas">
+                    <div id="tas-cartes" class="tas-cartes">
+                        <div class="carte-dos"></div>
+                        <div class="carte-dos"></div>
+                        <div class="carte-dos"></div>
+                    </div>
+
+                    <div id="de-scene" class="de-scene">
+                        <div id="de-3d" class="de-cube">
+                            <div class="face face-1"><span>⚀</span></div>
+                            <div class="face face-2"><span>⚁</span></div>
+                            <div class="face face-3"><span>⚂</span></div>
+                            <div class="face face-4"><span>⚃</span></div>
+                            <div class="face face-5"><span>⚄</span></div>
+                            <div class="face face-6"><span>⚅</span></div>
+                        </div>
+                        <div class="de-ombre"></div>
+                        <div id="de-resultat" class="de-resultat hidden"></div>
+                    </div>
+
+                    <div id="de-instruction" class="de-instruction">Cliquez sur le dé</div>
+                </div>
+
+                <!-- CARTE ACTIVE -->
+                <div id="carte-container" class="carte-container">
+                    <div id="carte-piochee" class="carte-piochee hidden">
+                        <div class="carte-inner">
+                            <div class="carte-face carte-dos-anim"></div>
+                            <div class="carte-face carte-front">
+                                <div id="carte-bandeau" class="carte-bandeau">TYPE</div>
+                                <div id="carte-titre" class="carte-titre">Titre</div>
+                                <div id="carte-desc" class="carte-desc">Description</div>
+                                <div id="carte-effet" class="carte-effet"></div>
+                                <div id="carte-actions" class="carte-actions"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ZONE DROITE : TOUS LES JOUEURS -->
+            <div id="zone-joueurs">
+                <div class="section-titre">📊 Joueurs</div>
+                <div id="joueurs-liste"></div>
+            </div>
+        </div>
+
+        <!-- ZONE BASSE -->
+        <div id="zone-basse">
+            <!-- CARTES RESSOURCES STOCKABLES -->
+            <div class="zone-ressources">
+                <div class="section-titre">🃏 Ressources (clic pour utiliser)</div>
+                <div id="slots-ressources" class="slots-ressources"></div>
+            </div>
+
+            <!-- IDENTITÉ JOUEUR ACTIF -->
+            <div id="joueur-actif-zone" class="joueur-actif-zone">
+                <div id="ja-pion" class="ja-pion"></div>
+                <div class="ja-infos">
+                    <div id="ja-nom" class="ja-nom">Joueur</div>
+                    <div id="ja-role" class="ja-role">💼 Salarié</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ÉCRAN FIN -->
+    <div id="ecran-fin" class="ecran hidden">
+        <div class="fin-container">
+            <div id="fin-icone" class="fin-icone">🏆</div>
+            <h1 id="fin-titre">Victoire !</h1>
+            <p id="fin-message"></p>
+            <div id="fin-classement"></div>
+            <button id="btn-rejouer" class="btn-principal">Rejouer</button>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+
+</html>

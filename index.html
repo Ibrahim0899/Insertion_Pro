@@ -14,17 +14,17 @@
     <!-- ÉCRAN ACCUEIL - CHOIX MODE -->
     <div id="ecran-accueil" class="ecran">
         <div class="accueil-container">
-            <h1>🎓 Insertion Pro</h1>
+            <h1>Insertion Pro</h1>
             <p class="sous-titre">Jeu de société sur l'insertion professionnelle</p>
 
             <div class="mode-selection">
                 <button id="btn-local" class="btn-mode">
-                    <span class="mode-icon">🎮</span>
+                    <span class="mode-icon">■</span>
                     <span class="mode-titre">Partie Locale</span>
                     <span class="mode-desc">Jouez sur le même écran</span>
                 </button>
                 <button id="btn-online" class="btn-mode online">
-                    <span class="mode-icon">🌐</span>
+                    <span class="mode-icon">●</span>
                     <span class="mode-titre">Partie en Ligne</span>
                     <span class="mode-desc">Jusqu'à 8 joueurs</span>
                 </button>
@@ -63,7 +63,7 @@
                 </div>
                 <div class="online-options">
                     <button id="btn-create-room" class="btn-principal">
-                        <span>➕</span> Créer une salle
+                        <span>+</span> Créer une salle
                     </button>
                     <div class="separator">ou</div>
                     <div class="join-room-form">
@@ -71,7 +71,7 @@
                         <button id="btn-join-room" class="btn-principal">Rejoindre</button>
                     </div>
                 </div>
-                <button id="btn-back-mode" class="btn-secondaire btn-small">← Retour</button>
+                <button id="btn-back-mode" class="btn-secondaire btn-small">Retour</button>
             </div>
         </div>
     </div>
@@ -80,11 +80,11 @@
     <div id="ecran-lobby" class="ecran hidden">
         <div class="lobby-container">
             <div class="lobby-header">
-                <h2>🌐 Salle en Ligne</h2>
+                <h2>Salle en Ligne</h2>
                 <div class="room-code-display">
                     <span class="code-label">Code :</span>
                     <span id="display-room-code" class="code-value">ABC123</span>
-                    <button id="btn-copy-code" class="btn-copy" title="Copier">📋</button>
+                    <button id="btn-copy-code" class="btn-copy" title="Copier">Copier</button>
                 </div>
             </div>
 
@@ -99,7 +99,7 @@
 
             <div class="lobby-actions">
                 <button id="btn-start-online" class="btn-principal btn-large hidden">
-                    🚀 Lancer la partie
+                    Lancer la partie
                 </button>
                 <button id="btn-leave-room" class="btn-secondaire">Quitter la salle</button>
             </div>
@@ -119,10 +119,10 @@
         <div class="preparation-content">
             <!-- DIPLÔME ATTRIBUÉ (NON CHOISI) -->
             <div id="etape-diplome-attribue" class="etape-box">
-                <h3>🎓 Votre diplôme objectif</h3>
+                <h3>Votre diplôme objectif</h3>
                 <p class="attribue-info">Attribué aléatoirement par le jeu</p>
                 <div id="diplome-attribue-affichage" class="diplome-attribue">
-                    <span class="diplome-icon">🎓</span>
+                    <span class="diplome-icon">◆</span>
                     <span class="diplome-nom">BAC</span>
                     <span class="diplome-pts">4 points requis</span>
                 </div>
@@ -131,25 +131,25 @@
 
             <!-- CHOIX DU RÔLE (SEUL CHOIX) -->
             <div id="etape-role" class="etape-box hidden">
-                <h3>👤 Choisissez votre rôle</h3>
+                <h3>Choisissez votre rôle</h3>
                 <p>Ce choix est <strong>définitif</strong> et influence toute la partie</p>
                 <div class="roles-grid">
                     <button class="btn-role" data-role="salarie">
-                        <span class="role-icon">💼</span>
+                        <span class="role-icon">▣</span>
                         <span class="role-titre">Salarié</span>
                         <ul class="role-details">
-                            <li>✅ +2 stabilité par tour</li>
-                            <li>✅ Pertes réduites (-50%)</li>
-                            <li>⚠️ Progression diplôme lente</li>
+                            <li>• +2 stabilité par tour</li>
+                            <li>• Pertes réduites (-50%)</li>
+                            <li>○ Progression diplôme lente</li>
                         </ul>
                     </button>
                     <button class="btn-role" data-role="entrepreneur">
-                        <span class="role-icon">🚀</span>
+                        <span class="role-icon">▲</span>
                         <span class="role-titre">Entrepreneur</span>
                         <ul class="role-details">
-                            <li>✅ Gains doublés possibles</li>
-                            <li>✅ Cartes exclusives</li>
-                            <li>⚠️ Risques importants</li>
+                            <li>• Gains doublés possibles</li>
+                            <li>• Cartes exclusives</li>
+                            <li>○ Risques importants</li>
                         </ul>
                     </button>
                 </div>
@@ -157,7 +157,7 @@
 
             <!-- ATTENTE AUTRES JOUEURS (ONLINE) -->
             <div id="etape-attente" class="etape-box hidden">
-                <h3>⏳ En attente</h3>
+                <h3>En attente</h3>
                 <p>Les autres joueurs font leurs choix...</p>
                 <div id="prep-progress" class="prep-progress"></div>
             </div>
@@ -169,8 +169,8 @@
 
         <div id="header-jeu">
             <div class="header-left">
-                <span class="header-titre">🎓 Insertion Pro</span>
-                <span id="online-indicator" class="online-indicator hidden">🌐 En ligne</span>
+                <span class="header-titre">Insertion Pro</span>
+                <span id="online-indicator" class="online-indicator hidden">En ligne</span>
             </div>
             <div class="header-center">
                 <!-- OBJECTIF DIPLÔME MIS EN AVANT -->

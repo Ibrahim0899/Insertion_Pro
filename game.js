@@ -279,16 +279,16 @@ async function refreshLobbyPlayers() {
             <div class="player-avatar" style="background: ${p.color}">${p.player_name.charAt(0).toUpperCase()}</div>
             <div class="player-info">
                 <span class="player-name">${p.player_name}</span>
-                ${RoomManager.currentRoom?.host_id === p.player_id ? '<span class="host-badge">👑 Hôte</span>' : ''}
+                ${RoomManager.currentRoom?.host_id === p.player_id ? '<span class="host-badge">Hôte</span>' : ''}
             </div>
-            <div class="player-status">${p.is_connected ? '🟢' : '🔴'}</div>
+            <div class="player-status">${p.is_connected ? '●' : '○'}</div>
         </div>
     `).join('');
 
     // Auto-start when target player count reached
     const connectedPlayers = players.filter(p => p.is_connected).length;
     if (connectedPlayers >= maxPlayers && RoomManager.isHost()) {
-        document.getElementById('lobby-status').textContent = '🚀 Nombre de joueurs atteint ! Lancement...';
+        document.getElementById('lobby-status').textContent = 'Nombre de joueurs atteint ! Lancement...';
         setTimeout(() => startOnlineGame(), 2000);
         return;
     }
@@ -309,8 +309,8 @@ function copyRoomCode() {
     const code = document.getElementById('display-room-code').textContent;
     navigator.clipboard.writeText(code).then(() => {
         const btn = document.getElementById('btn-copy-code');
-        btn.textContent = '✅';
-        setTimeout(() => btn.textContent = '📋', 2000);
+        btn.textContent = 'Copié !';
+        setTimeout(() => btn.textContent = 'Copier', 2000);
     });
 }
 
@@ -347,7 +347,7 @@ async function startOnlineGame() {
     // Assign diplomas to all players
     for (const player of players) {
         const diplomeAleatoire = diplomesKeys[Math.floor(Math.random() * diplomesKeys.length)];
-        await supabase.from('room_players').update({
+        await supabaseClient.from('room_players').update({
             diplome_objectif: diplomeAleatoire,
             stabilite: 50,
             pts_diplome: 0

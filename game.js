@@ -359,8 +359,7 @@ async function startOnlineGame() {
 
     await RoomManager.updateRoom({
         status: 'preparation',
-        game_state: gameState,
-        questions_utilisees: []
+        game_state: gameState
     });
 }
 

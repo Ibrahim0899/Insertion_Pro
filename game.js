@@ -13,99 +13,111 @@ const DIPLOMES = {
     master: { nom: 'MASTER', pts: 10, icon: '📕', stabiliteMin: 60, instabilite: 0 }
 };
 
-// ACTIONS DU DÉ
-const ACTIONS_DE = { 1: 'echec', 2: 'etudes', 3: 'travail', 4: 'ressource', 5: 'choix', 6: 'special' };
+// ACTIONS DU DÉ (Conforme aux règles officielles)
+// 1 = Malus, 2-5 = Chance, 6 = Bonus
+const ACTIONS_DE = { 1: 'malus', 2: 'chance', 3: 'chance', 4: 'chance', 5: 'chance', 6: 'bonus' };
 
-// QUESTIONS UNIQUES (ID + culture pro, logique, éthique)
-const QUESTIONS_POOL = [
-    { id: 1, q: "En entreprise, que signifie CDI ?", r: "contrat a duree indeterminee|contrat duree indeterminee" },
-    { id: 2, q: "Quel document résume votre parcours professionnel ?", r: "cv|curriculum vitae" },
-    { id: 3, q: "Un collègue vous demande de mentir pour lui. Bonne idée ?", r: "non" },
-    { id: 4, q: "Combien d'heures dans une semaine de travail légale en France ?", r: "35" },
-    { id: 5, q: "Que signifie SMIC ?", r: "salaire minimum|salaire minimum interprofessionnel" },
-    { id: 6, q: "Un entretien commence, vous êtes en retard. Première action ?", r: "excuser|s'excuser|excuses" },
-    { id: 7, q: "Quel impôt est prélevé sur les salaires ?", r: "impot sur le revenu|ir|impot" },
-    { id: 8, q: "Votre patron vous demande des heures sup non payées. Légal ?", r: "non" },
-    { id: 9, q: "Document obligatoire pour travailler en France ?", r: "carte d'identite|carte identite|passeport|titre de sejour" },
-    { id: 10, q: "15% de 200 = ?", r: "30" },
-    { id: 11, q: "Un client mécontent vous insulte. Réponse pro ?", r: "calme|rester calme|ecouter" },
-    { id: 12, q: "Que signifie CDD ?", r: "contrat a duree determinee|contrat duree determinee" },
-    { id: 13, q: "Vous trouvez une erreur de votre supérieur. Vous la signalez ?", r: "oui" },
-    { id: 14, q: "Durée légale des congés payés par an ?", r: "5 semaines|25 jours|5" },
-    { id: 15, q: "120 / 4 = ?", r: "30" },
-    { id: 16, q: "Un collègue est harcelé. Vous intervenez ?", r: "oui" },
-    { id: 17, q: "Que signifie RTT ?", r: "reduction du temps de travail|reduction temps travail" },
-    { id: 18, q: "Vous recevez un mail confidentiel par erreur. Action ?", r: "prevenir|signaler|informer" },
-    { id: 19, q: "Première étape d'une recherche d'emploi ?", r: "cv|preparer cv|definir projet" },
-    { id: 20, q: "8 x 7 + 4 = ?", r: "60" },
-    { id: 21, q: "Peut-on licencier sans motif en CDI ?", r: "non" },
-    { id: 22, q: "Période d'essai typique pour un CDI cadre ?", r: "4 mois|3 mois|4" },
-    { id: 23, q: "Un ami vous propose un poste, mais vous n'êtes pas qualifié. Accepter ?", r: "non" },
-    { id: 24, q: "Qui paie les cotisations patronales ?", r: "employeur|patron|entreprise" },
-    { id: 25, q: "250 - 83 = ?", r: "167" }
+// QUESTIONS avec niveaux de difficulté
+const CARTES_QUESTIONS = [
+    // Facile (+1 point) - 8 questions
+    { id: 1, difficulte: 'facile', bonus: 1, q: "En entreprise, que signifie CDI ?", r: "contrat a duree indeterminee|contrat duree indeterminee" },
+    { id: 2, difficulte: 'facile', bonus: 1, q: "Quel document résume votre parcours professionnel ?", r: "cv|curriculum vitae" },
+    { id: 3, difficulte: 'facile', bonus: 1, q: "Combien d'heures dans une semaine de travail légale en France ?", r: "35" },
+    { id: 4, difficulte: 'facile', bonus: 1, q: "Que signifie CDD ?", r: "contrat a duree determinee|contrat duree determinee" },
+    { id: 5, difficulte: 'facile', bonus: 1, q: "120 / 4 = ?", r: "30" },
+    { id: 6, difficulte: 'facile', bonus: 1, q: "8 x 7 + 4 = ?", r: "60" },
+    { id: 7, difficulte: 'facile', bonus: 1, q: "15% de 200 = ?", r: "30" },
+    { id: 8, difficulte: 'facile', bonus: 1, q: "250 - 83 = ?", r: "167" },
+    // Moyen (+2 points) - 8 questions
+    { id: 9, difficulte: 'moyen', bonus: 2, q: "Que signifie SMIC ?", r: "salaire minimum|salaire minimum interprofessionnel" },
+    { id: 10, difficulte: 'moyen', bonus: 2, q: "Quel impôt est prélevé sur les salaires ?", r: "impot sur le revenu|ir|impot" },
+    { id: 11, difficulte: 'moyen', bonus: 2, q: "Que signifie RTT ?", r: "reduction du temps de travail|reduction temps travail" },
+    { id: 12, difficulte: 'moyen', bonus: 2, q: "Durée légale des congés payés par an ?", r: "5 semaines|25 jours|5" },
+    { id: 13, difficulte: 'moyen', bonus: 2, q: "Période d'essai typique pour un CDI cadre ?", r: "4 mois|3 mois|4" },
+    { id: 14, difficulte: 'moyen', bonus: 2, q: "Qui paie les cotisations patronales ?", r: "employeur|patron|entreprise" },
+    { id: 15, difficulte: 'moyen', bonus: 2, q: "Document obligatoire pour travailler en France ?", r: "carte d'identite|carte identite|passeport|titre de sejour" },
+    { id: 16, difficulte: 'moyen', bonus: 2, q: "Première étape d'une recherche d'emploi ?", r: "cv|preparer cv|definir projet" },
+    // Difficile (+3 points) - 8 questions éthiques/situationnelles
+    { id: 17, difficulte: 'difficile', bonus: 3, q: "Un collègue vous demande de mentir pour lui. Bonne idée ?", r: "non" },
+    { id: 18, difficulte: 'difficile', bonus: 3, q: "Votre patron vous demande des heures sup non payées. Légal ?", r: "non" },
+    { id: 19, difficulte: 'difficile', bonus: 3, q: "Un client mécontent vous insulte. Réponse pro ?", r: "calme|rester calme|ecouter" },
+    { id: 20, difficulte: 'difficile', bonus: 3, q: "Vous trouvez une erreur de votre supérieur. Vous la signalez ?", r: "oui" },
+    { id: 21, difficulte: 'difficile', bonus: 3, q: "Un collègue est harcelé. Vous intervenez ?", r: "oui" },
+    { id: 22, difficulte: 'difficile', bonus: 3, q: "Vous recevez un mail confidentiel par erreur. Action ?", r: "prevenir|signaler|informer" },
+    { id: 23, difficulte: 'difficile', bonus: 3, q: "Peut-on licencier sans motif en CDI ?", r: "non" },
+    { id: 24, difficulte: 'difficile', bonus: 3, q: "Un ami vous propose un poste, mais vous n'êtes pas qualifié. Accepter ?", r: "non" }
 ];
 
-// CARTES ÉTUDES
-const CARTES_ETUDES = [
-    { titre: "Révisions", desc: "Travail acharné.", ptsDiplome: 1, stab: 0 },
-    { titre: "Stage court", desc: "Expérience enrichissante.", ptsDiplome: 1, stab: 2 },
-    { titre: "Cours du soir", desc: "Formation continue.", ptsDiplome: 1, stab: -2 },
-    { titre: "Projet groupe", desc: "Collaboration réussie.", ptsDiplome: 0, stab: 4 },
-    { titre: "Mentorat", desc: "Un expert vous guide.", ptsDiplome: 0, stab: 5 }
-];
-
-// CARTES TRAVAIL
-const CARTES_TRAVAIL_SALARIE = [
-    { titre: "Salaire", desc: "Paie mensuelle.", stab: 5 },
-    { titre: "Prime modeste", desc: "Petit bonus.", stab: 4 },
-    { titre: "Formation", desc: "Compétences acquises.", stab: 3, ptsDiplome: 0 },
-    { titre: "Routine", desc: "Journée normale.", stab: 2 },
-    { titre: "Réunion longue", desc: "Fatiguant mais OK.", stab: -2 }
-];
-
-const CARTES_TRAVAIL_ENTREPRENEUR = [
-    { titre: "Nouveau client", desc: "Un contrat signé !", stab: 6 },
-    { titre: "Networking", desc: "Contacts utiles.", stab: 4 },
-    { titre: "Charges", desc: "Factures à payer.", stab: -4 },
-    { titre: "Innovation", desc: "Bonne idée !", stab: 5 },
-    { titre: "Concurrence", desc: "Marché difficile.", stab: -3 }
-];
-
-// CARTES RESSOURCES
-const CARTES_RESSOURCES = [
-    { type: 'stabilite', nom: 'Économies', icon: '💰', effet: '+5 stabilité', action: (j) => { j.stabilite += 5; } },
-    { type: 'stabilite', nom: 'Soutien', icon: '🤝', effet: '+4 stabilité', action: (j) => { j.stabilite += 4; } },
-    { type: 'protection', nom: 'Assurance', icon: '🛡️', effet: 'Réduit prochaine perte', action: null },
-    { type: 'reseau', nom: 'Contact', icon: '📞', effet: '+3 stabilité', action: (j) => { j.stabilite += 3; } },
-    { type: 'chance', nom: 'Coup de pouce', icon: '🍀', effet: '+2 stabilité', action: (j) => { j.stabilite += 2; } }
-];
-
-// CARTES CHOIX
-const CARTES_CHOIX = [
-    { titre: "Opportunité risquée", desc: "On vous propose un projet ambitieux mais incertain.", oui: { stab: 6, label: 'Accepter' }, non: { stab: -2, label: 'Refuser' } },
-    { titre: "Heures sup ?", desc: "Travail supplémentaire demandé.", oui: { stab: 4, label: 'Accepter' }, non: { stab: -3, label: 'Refuser' } },
-    { titre: "Aider un collègue", desc: "Il a besoin d'aide urgente.", oui: { stab: 3, differe: true, label: 'Aider' }, non: { stab: -4, label: 'Ignorer' } },
-    { titre: "Avouer une erreur", desc: "Vous avez fait une faute.", oui: { stab: 5, label: 'Avouer' }, non: { stab: -6, label: 'Cacher' } },
-    { titre: "Formation weekend", desc: "Améliorer vos compétences ?", oui: { stab: -2, ptsDiplome: 1, label: 'Y aller' }, non: { stab: 2, label: 'Repos' } },
-    { titre: "Déménagement", desc: "Emploi mieux payé, mais loin.", oui: { stab: 4, label: 'Partir' }, non: { stab: -2, label: 'Rester' } }
-];
-
-// CARTES SPÉCIALES
-const CARTES_SPECIAL_SALARIE = [
-    { titre: "Promotion", desc: "Montée en grade !", stab: 6 },
-    { titre: "Burn-out léger", desc: "Fatigue accumulée.", stab: -5 }
-];
-
-const CARTES_SPECIAL_ENTREPRENEUR = [
-    { titre: "Gros contrat", desc: "Un client majeur !", stab: 8 },
-    { titre: "Projet échoué", desc: "Un investissement perdu.", stab: -6 }
-];
-
-// CARTES ÉCHEC
-const CARTES_ECHEC = [
+// CARTES MALUS (20 cartes) - Effets négatifs
+const CARTES_MALUS = [
     { titre: "Procrastination", desc: "Temps perdu.", stab: -2 },
     { titre: "Imprévu", desc: "Journée perturbée.", stab: -3 },
-    { titre: "Fatigue", desc: "Vous êtes épuisé.", stab: -2 }
+    { titre: "Fatigue", desc: "Vous êtes épuisé.", stab: -2 },
+    { titre: "Conflit", desc: "Dispute avec un collègue.", stab: -4 },
+    { titre: "Retard", desc: "Vous arrivez en retard.", stab: -2 },
+    { titre: "Erreur", desc: "Une erreur de votre part.", stab: -3 },
+    { titre: "Stress", desc: "Pression intense.", stab: -2 },
+    { titre: "Maladie", desc: "Petit coup de mou.", stab: -3, sauteTour: false },
+    { titre: "Panne", desc: "Votre ordinateur lâche.", stab: -2 },
+    { titre: "Critique", desc: "Feedback négatif.", stab: -3 },
+    { titre: "Deadline ratée", desc: "Projet en retard.", stab: -4 },
+    { titre: "Burnout léger", desc: "Fatigue accumulée.", stab: -5 },
+    { titre: "Charges imprévues", desc: "Factures inattendues.", stab: -3 },
+    { titre: "Concurrence", desc: "Un concurrent vous dépasse.", stab: -2 },
+    { titre: "Refus", desc: "Votre proposition est refusée.", stab: -2 },
+    { titre: "Perte de client", desc: "Un client vous quitte.", stab: -4 },
+    { titre: "Mauvaise réputation", desc: "Rumeurs négatives.", stab: -3 },
+    { titre: "Accident mineur", desc: "Petit pépin de santé.", stab: -2, sauteTour: true },
+    { titre: "Vol", desc: "On vous a volé quelque chose.", stab: -3 },
+    { titre: "Arnaque", desc: "Vous vous êtes fait avoir.", stab: -4 }
+];
+
+// CARTES BONUS (20 cartes) - Effets positifs
+const CARTES_BONUS = [
+    { titre: "Promotion", desc: "Montée en grade !", stab: 6 },
+    { titre: "Prime", desc: "Bonus exceptionnel.", stab: 5 },
+    { titre: "Reconnaissance", desc: "Votre travail est apprécié.", stab: 4 },
+    { titre: "Formation réussie", desc: "Nouvelles compétences.", stab: 3, ptsObjectif: 1 },
+    { titre: "Nouveau client", desc: "Contrat signé !", stab: 5 },
+    { titre: "Networking", desc: "Contacts précieux.", stab: 3 },
+    { titre: "Innovation", desc: "Votre idée est adoptée.", stab: 4 },
+    { titre: "Mentorat", desc: "Un expert vous guide.", stab: 4, ptsObjectif: 1 },
+    { titre: "Coup de pouce", desc: "Aide inattendue.", stab: 3, relance: true },
+    { titre: "Économies", desc: "Bonne gestion financière.", stab: 4 },
+    { titre: "Soutien familial", desc: "Votre famille vous aide.", stab: 3 },
+    { titre: "Partenariat", desc: "Collaboration fructueuse.", stab: 5 },
+    { titre: "Récompense", desc: "Prix pour votre travail.", stab: 4 },
+    { titre: "Investissement", desc: "Placement rentable.", stab: 5 },
+    { titre: "Opportunité", desc: "Offre intéressante.", stab: 4 },
+    { titre: "Assurance", desc: "Protection contre les pertes.", stab: 0, annuleMalus: true },
+    { titre: "Repos mérité", desc: "Vacances ressourçantes.", stab: 3 },
+    { titre: "Projet réussi", desc: "Mission accomplie.", stab: 5 },
+    { titre: "Contrat long terme", desc: "Stabilité assurée.", stab: 6 },
+    { titre: "Héritage", desc: "Petit cadeau inattendu.", stab: 4 }
+];
+
+// CARTES CHANCE (20 cartes) - Effets variés (tirage au sort)
+const CARTES_CHANCE = [
+    { titre: "Question facile", desc: "Testez vos connaissances !", type: 'question', difficulte: 'facile' },
+    { titre: "Question moyenne", desc: "Un défi modéré.", type: 'question', difficulte: 'moyen' },
+    { titre: "Question difficile", desc: "Êtes-vous prêt ?", type: 'question', difficulte: 'difficile' },
+    { titre: "Jour de chance", desc: "Tout va bien aujourd'hui.", stab: 3 },
+    { titre: "Rencontre fortuite", desc: "Une personne utile.", stab: 2 },
+    { titre: "Bonne nouvelle", desc: "Quelque chose de positif.", stab: 2 },
+    { titre: "Petit imprévu", desc: "Rien de grave.", stab: -1 },
+    { titre: "Journée normale", desc: "Ni bon ni mauvais.", stab: 0 },
+    { titre: "Surprise", desc: "Inattendu mais agréable.", stab: 2 },
+    { titre: "Question facile", desc: "Testez vos connaissances !", type: 'question', difficulte: 'facile' },
+    { titre: "Question moyenne", desc: "Un défi modéré.", type: 'question', difficulte: 'moyen' },
+    { titre: "Question difficile", desc: "Êtes-vous prêt ?", type: 'question', difficulte: 'difficile' },
+    { titre: "Opportunité risquée", desc: "Accepter ou refuser ?", type: 'choix', oui: { stab: 4, label: 'Accepter' }, non: { stab: -2, label: 'Refuser' } },
+    { titre: "Heures sup ?", desc: "Travail supplémentaire.", type: 'choix', oui: { stab: 3, label: 'Accepter' }, non: { stab: -1, label: 'Refuser' } },
+    { titre: "Aider un collègue", desc: "Il a besoin d'aide.", type: 'choix', oui: { stab: 2, label: 'Aider' }, non: { stab: -2, label: 'Ignorer' } },
+    { titre: "Avouer une erreur", desc: "Vous avez fait une faute.", type: 'choix', oui: { stab: 3, label: 'Avouer' }, non: { stab: -4, label: 'Cacher' } },
+    { titre: "Formation weekend", desc: "Améliorer vos compétences ?", type: 'choix', oui: { stab: -1, ptsObjectif: 1, label: 'Y aller' }, non: { stab: 1, label: 'Repos' } },
+    { titre: "Jour tranquille", desc: "Une journée paisible.", stab: 1 },
+    { titre: "Routine", desc: "Rien de spécial.", stab: 0 },
+    { titre: "Coup de pouce", desc: "Un petit coup de main.", stab: 2 }
 ];
 
 // ÉTAT DU JEU
@@ -114,11 +126,12 @@ let jeu = {
     joueurs: [],
     joueurActif: 0,
     tour: 1,
-    maxTours: 30,
+    maxTours: 40, // Conforme aux règles officielles (40 tours)
     phase: 'accueil',
     deBloque: true,
     questionsUtilisees: [],
-    effetsDifferes: []
+    effetsDifferes: [],
+    prochainMalusAnnule: false // Pour la carte Assurance
 };
 
 // ==========================================
@@ -661,10 +674,12 @@ function finirPreparationDiplome() {
             <p style="color:#f87171">-${malus} stabilité de départ</p>
         `;
     } else {
+        j.objectifAccepte = true;
+        j.ptsObjectif = 0;
         document.querySelector('.diplome-attribue').innerHTML = `
-            <span class="diplome-icon">✅</span>
-            <span class="diplome-nom">Prêt !</span>
-            <p style="color:#4ade80">Toutes les réponses correctes !</p>
+            <span class="diplome-icon">&#10003;</span>
+            <span class="diplome-nom">Objectif accepté !</span>
+            <p style="color:#4ade80">Vous pouvez gagner en remplissant votre objectif</p>
         `;
     }
 
@@ -673,7 +688,8 @@ function finirPreparationDiplome() {
 
 function refuserDiplome() {
     const j = jeu.joueurs[jeu.joueurActif];
-    j.diplomeRefuse = true;
+    j.objectifAccepte = false;
+    j.ptsObjectif = 0;
     passerAuRole();
 }
 
@@ -761,9 +777,10 @@ function majInterface() {
     document.getElementById('tour-num').textContent = jeu.tour;
     document.getElementById('tour-max').textContent = jeu.maxTours;
 
-    document.getElementById('obj-diplome-nom').textContent = diplome.nom;
-    document.getElementById('obj-progress-text').textContent = `${j.ptsDiplome}/${diplome.pts}`;
-    document.getElementById('obj-progress-fill').style.width = `${(j.ptsDiplome / diplome.pts) * 100}%`;
+    document.getElementById('obj-diplome-nom').textContent = j.objectifAccepte ? diplome.nom : 'Aucun';
+    const ptsObj = j.ptsObjectif || 0;
+    document.getElementById('obj-progress-text').textContent = j.objectifAccepte ? `${ptsObj}/${diplome.pts}` : 'Non accepté';
+    document.getElementById('obj-progress-fill').style.width = j.objectifAccepte ? `${(ptsObj / diplome.pts) * 100}%` : '0%';
 
     const liste = document.getElementById('joueurs-liste');
     liste.innerHTML = '';
@@ -883,22 +900,14 @@ function traiterAction(resultat) {
     const j = jeu.joueurs[jeu.joueurActif];
     const action = ACTIONS_DE[resultat];
 
-    if (j.role === 'salarie') j.stabilite += 2;
-
+    // Appliquer les effets différés
     appliquerEffetsDifferes();
 
-    const diplome = DIPLOMES[j.diplomeObjectif];
-    if (diplome.instabilite > 0 && Math.random() < 0.15) {
-        j.stabilite -= diplome.instabilite;
-    }
-
+    // Traiter l'action selon le résultat du dé
     switch (action) {
-        case 'echec': carteEchec(); break;
-        case 'etudes': carteEtudes(); break;
-        case 'travail': carteTravail(); break;
-        case 'ressource': carteRessource(); break;
-        case 'choix': carteChoix(); break;
-        case 'special': carteSpecial(); break;
+        case 'malus': carteMalus(); break;  // Dé = 1
+        case 'chance': carteChance(); break; // Dé = 2-5
+        case 'bonus': carteBonus(); break;   // Dé = 6
     }
 }
 
@@ -948,106 +957,121 @@ function appliquerPerte(perte) {
     return perte;
 }
 
-function carteEchec() {
-    const carte = CARTES_ECHEC[Math.floor(Math.random() * CARTES_ECHEC.length)];
-    const perte = appliquerPerte(carte.stab);
-    afficherResultat('ÉCHEC', `😓 ${carte.titre}`, carte.desc, `${perte} stabilité`, 'negatif');
-}
-
-function carteEtudes() {
+function carteMalus() {
     const j = jeu.joueurs[jeu.joueurActif];
-    const diplome = DIPLOMES[j.diplomeObjectif];
-    const carte = CARTES_ETUDES[Math.floor(Math.random() * CARTES_ETUDES.length)];
 
-    if (carte.ptsDiplome > 0 && j.stabilite < 20) {
-        j.stabilite += carte.stab || 0;
-        afficherResultat('ÉTUDES', `📚 ${carte.titre}`, 'Stabilité trop basse pour progresser !', `${carte.stab >= 0 ? '+' : ''}${carte.stab || 0} stabilité`, 'neutre');
+    // Vérifier si le malus est annulé
+    if (jeu.prochainMalusAnnule) {
+        jeu.prochainMalusAnnule = false;
+        afficherResultat('MALUS', 'Malus annulé !', 'Votre protection vous a sauvé.', '+0 stabilité', 'positif');
         return;
     }
 
-    if (carte.ptsDiplome > 0) {
-        const q = getQuestionUnique();
-        if (!q) {
-            j.stabilite += 3;
-            afficherResultat('ÉTUDES', '📚 Auto-formation', 'Plus de questions disponibles', '+3 stabilité', 'positif');
-            return;
-        }
+    const carte = CARTES_MALUS[Math.floor(Math.random() * CARTES_MALUS.length)];
+    const perte = appliquerPerte(carte.stab);
 
-        jeu.currentQuestion = q;
-        jeu.currentCarte = carte;
-
-        afficherCarte('ÉTUDES', `📚 ${carte.titre}`, `${carte.desc}\n\n${q.q}`,
-            'Répondez correctement', 'neutre',
-            `<input type="text" id="reponse" placeholder="Réponse...">
-             <button class="btn-ok" onclick="validerEtudes()">Valider</button>`);
-
-        setTimeout(() => {
-            const input = document.getElementById('reponse');
-            if (input) {
-                input.focus();
-                input.onkeypress = (e) => { if (e.key === 'Enter') validerEtudes(); };
-            }
-        }, 700);
-    } else {
-        j.stabilite += carte.stab;
-        afficherResultat('ÉTUDES', `📚 ${carte.titre}`, carte.desc, `+${carte.stab} stabilité`, 'positif');
-    }
+    afficherResultat('MALUS', carte.titre, carte.desc, `${perte} stabilité`, 'negatif');
 }
 
-function validerEtudes() {
+function carteChance() {
     const j = jeu.joueurs[jeu.joueurActif];
-    const reponse = document.getElementById('reponse').value.toLowerCase().trim();
-    const bonnes = jeu.currentQuestion.r.split('|').map(r => r.toLowerCase().trim());
-    const carte = jeu.currentCarte;
+    const carte = CARTES_CHANCE[Math.floor(Math.random() * CARTES_CHANCE.length)];
 
-    if (bonnes.some(b => reponse.includes(b) || b.includes(reponse))) {
-        j.ptsDiplome += 1;
-        j.stabilite += carte.stab || 0;
-        verifierDiplome();
-        afficherResultat('ÉTUDES', '✅ Correct !', '', '+1 pt diplôme', 'positif');
-    } else {
-        const perte = appliquerPerte(-3);
-        afficherResultat('ÉTUDES', '❌ Incorrect', `Réponse: ${bonnes[0]}`, `${perte} stabilité`, 'negatif');
+    // Carte de type question
+    if (carte.type === 'question') {
+        afficherQuestionChance(carte.difficulte);
+        return;
     }
-}
 
-function carteTravail() {
-    const j = jeu.joueurs[jeu.joueurActif];
-    const cartes = j.role === 'salarie' ? CARTES_TRAVAIL_SALARIE : CARTES_TRAVAIL_ENTREPRENEUR;
-    const carte = cartes[Math.floor(Math.random() * cartes.length)];
+    // Carte de type choix
+    if (carte.type === 'choix') {
+        jeu.currentChoix = carte;
+        afficherCarte('CHANCE', carte.titre, carte.desc,
+            'Choisissez sans connaître les conséquences', 'neutre',
+            `<button class="btn-oui" onclick="appliquerChoix('oui')">${carte.oui.label}</button>
+             <button class="btn-non" onclick="appliquerChoix('non')">${carte.non.label}</button>`);
+        return;
+    }
 
-    let effet = carte.stab;
+    // Carte avec effet direct sur la stabilité
+    let effet = carte.stab || 0;
     if (effet < 0) effet = appliquerPerte(effet);
     else j.stabilite += effet;
 
-    const classe = effet >= 0 ? 'positif' : 'negatif';
+    const classe = effet > 0 ? 'positif' : (effet < 0 ? 'negatif' : 'neutre');
     const texte = effet >= 0 ? `+${effet}` : effet;
 
-    afficherResultat('TRAVAIL', `💼 ${carte.titre}`, carte.desc, `${texte} stabilité`, classe);
+    afficherResultat('CHANCE', carte.titre, carte.desc, `${texte} stabilité`, classe);
 }
 
-function carteRessource() {
-    const j = jeu.joueurs[jeu.joueurActif];
+function afficherQuestionChance(difficulte) {
+    const questions = CARTES_QUESTIONS.filter(q => q.difficulte === difficulte && !jeu.questionsUtilisees.includes(q.id));
 
-    if (j.ressources.length >= 4) {
-        afficherResultat('RESSOURCE', '📦 Inventaire plein', 'Max 4 cartes', 'Utilisez vos ressources !', 'neutre');
+    if (questions.length === 0) {
+        const j = jeu.joueurs[jeu.joueurActif];
+        j.stabilite += 2;
+        afficherResultat('CHANCE', 'Bonus automatique', 'Plus de questions disponibles', '+2 stabilité', 'positif');
         return;
     }
 
-    const carte = { ...CARTES_RESSOURCES[Math.floor(Math.random() * CARTES_RESSOURCES.length)] };
-    j.ressources.push(carte);
+    const q = questions[Math.floor(Math.random() * questions.length)];
+    jeu.questionsUtilisees.push(q.id);
+    jeu.currentQuestion = q;
 
-    afficherResultat('RESSOURCE', `${carte.icon} ${carte.nom}`, 'Carte stockée !', carte.effet, 'positif');
+    const niveauLabel = { facile: 'Facile (+1)', moyen: 'Moyen (+2)', difficile: 'Difficile (+3)' };
+
+    afficherCarte('QUESTION', `${niveauLabel[difficulte]}`, q.q,
+        'Répondez correctement pour gagner des points !', 'neutre',
+        `<div class="input-reponse">
+            <input type="text" id="reponse-chance" placeholder="Votre réponse..." autocomplete="off">
+            <button class="btn-principal" onclick="validerQuestionChance()">Valider</button>
+        </div>`);
+
+    setTimeout(() => {
+        const input = document.getElementById('reponse-chance');
+        if (input) {
+            input.focus();
+            input.onkeypress = (e) => { if (e.key === 'Enter') validerQuestionChance(); };
+        }
+    }, 100);
 }
 
-function carteChoix() {
-    const carte = CARTES_CHOIX[Math.floor(Math.random() * CARTES_CHOIX.length)];
-    jeu.currentChoix = carte;
+function validerQuestionChance() {
+    const input = document.getElementById('reponse-chance');
+    const reponse = input.value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+    const j = jeu.joueurs[jeu.joueurActif];
+    const q = jeu.currentQuestion;
 
-    afficherCarte('CHOIX', `❓ ${carte.titre}`, carte.desc,
-        'Choisissez sans connaître les conséquences', 'neutre',
-        `<button class="btn-oui" onclick="appliquerChoix('oui')">${carte.oui.label}</button>
-         <button class="btn-non" onclick="appliquerChoix('non')">${carte.non.label}</button>`);
+    const bonnesReponses = q.r.split('|').map(r => r.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim());
+    const correct = bonnesReponses.some(r => reponse.includes(r) || r.includes(reponse));
+
+    if (correct) {
+        j.stabilite += q.bonus;
+        afficherResultat('QUESTION', 'Bonne réponse !', `La réponse était : ${q.r.split('|')[0]}`, `+${q.bonus} stabilité`, 'positif');
+    } else {
+        afficherResultat('QUESTION', 'Mauvaise réponse', `La réponse était : ${q.r.split('|')[0]}`, '+0 stabilité', 'negatif');
+    }
+}
+
+function carteBonus() {
+    const j = jeu.joueurs[jeu.joueurActif];
+    const carte = CARTES_BONUS[Math.floor(Math.random() * CARTES_BONUS.length)];
+
+    j.stabilite += carte.stab;
+
+    if (carte.ptsObjectif) {
+        j.ptsObjectif = (j.ptsObjectif || 0) + carte.ptsObjectif;
+    }
+
+    if (carte.annuleMalus) {
+        jeu.prochainMalusAnnule = true;
+    }
+
+    let texteEffet = carte.stab > 0 ? `+${carte.stab} stabilité` : '';
+    if (carte.ptsObjectif) texteEffet += ` +${carte.ptsObjectif} objectif`;
+    if (carte.annuleMalus) texteEffet = 'Prochain malus annulé !';
+
+    afficherResultat('BONUS', carte.titre, carte.desc, texteEffet, 'positif');
 }
 
 function appliquerChoix(choix) {
@@ -1065,28 +1089,14 @@ function appliquerChoix(choix) {
     if (stab < 0) stab = appliquerPerte(stab);
     else j.stabilite += stab;
 
-    if (effet.ptsDiplome && j.stabilite >= 20) j.ptsDiplome += effet.ptsDiplome;
+    if (effet.ptsObjectif) {
+        j.ptsObjectif = (j.ptsObjectif || 0) + effet.ptsObjectif;
+    }
 
     const classe = stab >= 0 ? 'positif' : 'negatif';
     const texte = stab >= 0 ? `+${stab}` : stab;
 
-    verifierDiplome();
     afficherResultat('CHOIX', effet.label, '', `${texte} stabilité`, classe);
-}
-
-function carteSpecial() {
-    const j = jeu.joueurs[jeu.joueurActif];
-    const cartes = j.role === 'salarie' ? CARTES_SPECIAL_SALARIE : CARTES_SPECIAL_ENTREPRENEUR;
-    const carte = cartes[Math.floor(Math.random() * cartes.length)];
-
-    let effet = carte.stab;
-    if (effet < 0) effet = appliquerPerte(effet);
-    else j.stabilite += effet;
-
-    const classe = effet >= 0 ? 'positif' : 'negatif';
-    const texte = effet >= 0 ? `+${effet}` : effet;
-
-    afficherResultat('SPÉCIAL', `⭐ ${carte.titre}`, carte.desc, `${texte} stabilité`, classe);
 }
 
 // ==========================================
@@ -1106,14 +1116,17 @@ function verifierDiplome() {
 function verifierVictoire() {
     const j = jeu.joueurs[jeu.joueurActif];
     const diplome = DIPLOMES[j.diplomeObjectif];
+    const objectifMax = diplome ? diplome.pts : 10;
 
+    // Victoire par stabilité maximale
     if (j.stabilite >= 100) {
-        terminerPartie(j, 'Stabilité maximale atteinte !');
+        terminerPartie(j, 'Victoire par stabilité maximale !');
         return true;
     }
 
-    if (j.diplomeValide && j.stabilite >= diplome.stabiliteMin) {
-        terminerPartie(j, `${diplome.nom} validé avec ${j.stabilite} stabilité !`);
+    // Victoire par objectif rempli (si le joueur a accepté l'objectif)
+    if (j.objectifAccepte && j.ptsObjectif >= objectifMax) {
+        terminerPartie(j, `Objectif atteint : ${j.ptsObjectif}/${objectifMax} points !`);
         return true;
     }
 
@@ -1123,6 +1136,37 @@ function verifierVictoire() {
 async function finTour() {
     if (verifierVictoire()) return;
 
+    // Phase 2: Lancer de dé objectif (d3) si le joueur a accepté l'objectif
+    const j = jeu.joueurs[jeu.joueurActif];
+    if (j.objectifAccepte) {
+        lancerDeObjectif();
+        return; // La suite sera appelée par finTourApresObjectif
+    }
+
+    finTourApresObjectif();
+}
+
+function lancerDeObjectif() {
+    const j = jeu.joueurs[jeu.joueurActif];
+    const d3 = Math.floor(Math.random() * 3) + 1; // Résultat 1, 2 ou 3
+
+    j.ptsObjectif = (j.ptsObjectif || 0) + d3;
+
+    const diplome = DIPLOMES[j.diplomeObjectif];
+    const objectifMax = diplome ? diplome.pts : 10;
+
+    afficherCarte('OBJECTIF', `Dé Objectif: ${d3}`,
+        `Vous gagnez ${d3} point(s) d'objectif !`,
+        `${j.ptsObjectif}/${objectifMax} points`, 'positif',
+        '<button class="btn-ok" onclick="finTourApresObjectif()">OK</button>');
+
+    majInterface();
+
+    // Vérifier victoire par objectif
+    if (verifierVictoire()) return;
+}
+
+async function finTourApresObjectif() {
     // Sync player state if online
     await syncPlayerStateOnline();
 
@@ -1133,11 +1177,14 @@ async function finTour() {
         jeu.tour++;
         if (jeu.tour > jeu.maxTours) {
             const classement = [...jeu.joueurs].sort((a, b) => {
-                if (a.diplomeValide && !b.diplomeValide) return -1;
-                if (!a.diplomeValide && b.diplomeValide) return 1;
+                // Priorité: objectif rempli, puis stabilité
+                const aObj = a.objectifAccepte && a.ptsObjectif >= (DIPLOMES[a.diplomeObjectif]?.pts || 10);
+                const bObj = b.objectifAccepte && b.ptsObjectif >= (DIPLOMES[b.diplomeObjectif]?.pts || 10);
+                if (aObj && !bObj) return -1;
+                if (!aObj && bObj) return 1;
                 return b.stabilite - a.stabilite;
             });
-            terminerPartie(classement[0], 'Fin de la démo (30 tours) !');
+            terminerPartie(classement[0], 'Fin de la partie (40 tours) !');
             return;
         }
     }

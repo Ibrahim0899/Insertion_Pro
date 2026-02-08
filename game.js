@@ -1269,3 +1269,4 @@ function shuffleArray(array) {
     }
     return array;
 }
+/* Cache bust: Sun Feb  8 22:00:51 CET 2026 */

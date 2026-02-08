@@ -381,9 +381,11 @@ async function startOnlineGame() {
 
 // Realtime callbacks
 function onRoomUpdate(room) {
-    if (room.status === 'preparation' && jeu.phase !== 'preparation') {
-        demarrerPreparationOnline();
-    } else if (room.status === 'playing' && jeu.phase !== 'jeu') {
+    // Skip preparation phase - go directly to game when playing
+    // if (room.status === 'preparation' && jeu.phase !== 'preparation') {
+    //     demarrerPreparationOnline();
+    // } else if (room.status === 'playing' && jeu.phase !== 'jeu') {
+    if (room.status === 'playing' && jeu.phase !== 'jeu') {
         lancerJeuOnline();
     } else if (room.status === 'playing') {
         // Sync game state

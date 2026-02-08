@@ -337,43 +337,44 @@ async function startOnlineGame() {
 
     const players = await RoomManager.getPlayers();
     const maxPlayers = RoomManager.currentRoom?.max_players || 8;
-    const minPlayers = maxPlayers === 1 ? 1 : 1; // Allow solo or multiplayer
+    const minPlayers = maxPlayers === 1 ? 1 : 1;
 
     if (players.length < minPlayers) {
         alert(`Il faut au moins ${minPlayers} joueur(s) pour commencer`);
         return;
     }
 
-    // Initialize game state
+    // Initialize game state - Start game directly (skip preparation)
     const diplomesKeys = Object.keys(DIPLOMES);
+    const roles = ['salarie', 'entrepreneur'];
     shuffleArray(CARTES_QUESTIONS);
 
-    // Prepare player states in game_state JSON instead of updating columns
+    // Prepare player states with random roles and objectives
     const playerStates = {};
     for (const player of players) {
         const diplomeAleatoire = diplomesKeys[Math.floor(Math.random() * diplomesKeys.length)];
+        const roleAleatoire = roles[Math.floor(Math.random() * 2)];
         playerStates[player.player_id] = {
             diplome_objectif: diplomeAleatoire,
             stabilite: 50,
             pts_objectif: 0,
-            objectif_accepte: false,
-            role: null
+            objectif_accepte: true, // Auto-accept objective in online mode
+            role: roleAleatoire
         };
     }
 
     const gameState = {
-        phase: 'preparation',
+        phase: 'jeu', // Start directly in game phase
         tour: 1,
         joueurActif: 0,
         questionsUtilisees: [],
         effetsDifferes: [],
-        prepIndex: 0,
         playerStates: playerStates,
         prochainMalusAnnule: false
     };
 
     await RoomManager.updateRoom({
-        status: 'preparation',
+        status: 'playing', // Set to playing directly
         game_state: gameState
     });
 }
@@ -740,25 +741,31 @@ async function lancerJeuOnline() {
     jeu.joueurActif = 0;
     jeu.deBloque = !isMyTurn();
 
-    // Load players
+    // Load players and merge with game_state.playerStates
     const players = await RoomManager.getPlayers();
-    jeu.joueurs = players.map(p => ({
-        id: p.player_index,
-        oderId: p.id,
-        playerId: p.player_id,
-        nom: p.player_name,
-        couleur: p.color,
-        stabilite: p.stabilite,
-        diplomeObjectif: p.diplome_objectif,
-        ptsDiplome: p.pts_diplome || 0,
-        role: p.role,
-        ressources: p.ressources || [],
-        elimine: false,
-        diplomeValide: p.diplome_valide || false,
-        protectionActive: p.protection_active || false,
-        diplomeRefuse: p.diplome_refuse || false
-    }));
+    const room = RoomManager.currentRoom;
+    const playerStates = room?.game_state?.playerStates || {};
 
+    jeu.joueurs = players.map(p => {
+        const state = playerStates[p.player_id] || {};
+        return {
+            id: p.player_index,
+            oderId: p.id,
+            playerId: p.player_id,
+            nom: p.player_name,
+            couleur: p.color,
+            stabilite: state.stabilite || 50,
+            diplomeObjectif: state.diplome_objectif || 'dut',
+            ptsObjectif: state.pts_objectif || 0,
+            objectifAccepte: state.objectif_accepte || true,
+            role: state.role || 'salarie',
+            ressources: [],
+            elimine: false,
+            protectionActive: false
+        };
+    });
+
+    document.getElementById('ecran-lobby').classList.add('hidden');
     document.getElementById('ecran-preparation').classList.add('hidden');
     document.getElementById('ecran-jeu').classList.remove('hidden');
     document.getElementById('online-indicator').classList.remove('hidden');

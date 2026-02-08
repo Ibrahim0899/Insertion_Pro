@@ -346,7 +346,7 @@ async function startOnlineGame() {
 
     // Initialize game state
     const diplomesKeys = Object.keys(DIPLOMES);
-    shuffleArray(QUESTIONS_POOL);
+    shuffleArray(CARTES_QUESTIONS);
 
     // Prepare player states in game_state JSON instead of updating columns
     const playerStates = {};
@@ -435,7 +435,7 @@ function demarrerPreparation() {
     const diplomesKeys = Object.keys(DIPLOMES);
 
     jeu.questionsUtilisees = [];
-    shuffleArray(QUESTIONS_POOL);
+    shuffleArray(CARTES_QUESTIONS);
 
     jeu.joueurs = [];
     for (let i = 0; i < nb; i++) {
@@ -841,7 +841,7 @@ function majInterface() {
 }
 
 function getQuestionUnique() {
-    for (let q of QUESTIONS_POOL) {
+    for (let q of CARTES_QUESTIONS) {
         if (!jeu.questionsUtilisees.includes(q.id)) {
             jeu.questionsUtilisees.push(q.id);
             return q;

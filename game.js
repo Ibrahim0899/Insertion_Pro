@@ -355,7 +355,8 @@ async function startOnlineGame() {
         playerStates[player.player_id] = {
             diplome_objectif: diplomeAleatoire,
             stabilite: 50,
-            pts_diplome: 0,
+            pts_objectif: 0,
+            objectif_accepte: false,
             role: null
         };
     }
@@ -367,7 +368,8 @@ async function startOnlineGame() {
         questionsUtilisees: [],
         effetsDifferes: [],
         prepIndex: 0,
-        playerStates: playerStates
+        playerStates: playerStates,
+        prochainMalusAnnule: false
     };
 
     await RoomManager.updateRoom({
@@ -387,6 +389,7 @@ function onRoomUpdate(room) {
         const state = room.game_state;
         jeu.tour = state.tour || jeu.tour;
         jeu.joueurActif = state.joueurActif ?? jeu.joueurActif;
+        jeu.prochainMalusAnnule = state.prochainMalusAnnule || false;
         jeu.deBloque = !isMyTurn();
         majInterface();
     }
@@ -400,20 +403,17 @@ function onPlayersUpdate(players) {
         jeu.joueurs = players.map(p => ({
             id: p.player_index,
             oderId: p.id,
-            oderId: p.id,
-            oderId: p.id,
             playerId: p.player_id,
             nom: p.player_name,
             couleur: p.color,
             stabilite: p.stabilite,
             diplomeObjectif: p.diplome_objectif,
-            ptsDiplome: p.pts_diplome,
+            ptsObjectif: p.pts_objectif || 0,
+            objectifAccepte: p.objectif_accepte || false,
             role: p.role,
             ressources: p.ressources || [],
             elimine: false,
-            diplomeValide: p.diplome_valide,
-            protectionActive: p.protection_active,
-            diplomeRefuse: p.diplome_refuse
+            protectionActive: p.protection_active
         }));
         majInterface();
     }
@@ -1216,8 +1216,8 @@ async function syncPlayerStateOnline() {
 
     await RoomManager.updatePlayer({
         stabilite: j.stabilite,
-        pts_diplome: j.ptsDiplome,
-        diplome_valide: j.diplomeValide,
+        pts_objectif: j.ptsObjectif || 0,
+        objectif_accepte: j.objectifAccepte || false,
         protection_active: j.protectionActive,
         ressources: j.ressources
     });
